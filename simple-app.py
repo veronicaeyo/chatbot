@@ -8,6 +8,8 @@ with gr.Blocks() as demo:
     chatbot = gr.Chatbot()
     msg = gr.Textbox()
     clear = gr.ClearButton([msg, chatbot])
+    
+    audio = gr.Audio(source="microphone")
 
     def respond(message, chat_history):
         bot_message = random.choice(["How are you?", "I love you", "I'm very hungry"])
