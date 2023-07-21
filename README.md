@@ -1,3 +1,5 @@
+Use OPENAI API and gradio to create a simple interface to generate text from prompt
+
 ---
 title: chatbot
 app_file: app.py
