@@ -20,7 +20,10 @@ def bot(history):
         yield history
 
 
+
+
 with gr.Blocks() as demo:
+    gr.Markdown("<h1><center>Order Bot</center></h1>")
     chatbot = gr.Chatbot()
 
     with gr.Row():
