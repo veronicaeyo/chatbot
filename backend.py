@@ -1,6 +1,7 @@
 # handle communcation with openai API
 
 import os
+import json
 from typing import List, Dict
 from dotenv import load_dotenv
 
@@ -59,29 +60,30 @@ def add_text(
     global message_history
     message_history += [{"role": "system", "content": system_role}]
     message_history += [{"role": "user", "content": user_message}]
-    # message_history += [
-    #     {
-    #         "role": "system",
-    #         "content": """create a json summary of the just concluded 
-    #                      order after the order has been completed. 
-    #                      The fields should contain 1) a generated id 2) swallows 3) 
-    #                      proteins 4) drinks 5) delivery address (if any) 6) total price """,
-    #     }
-    # ]
+
     return gr.update(value="", interactive=False), history + [[user_message, ""]]
 
 
-def generate_response(history: List[list], model: str = "gpt-3.5-turbo"):
-    global message_history, cost
+def get_completion_from_message(model: str = "gpt-3.5-turbo"):
+    global message_history
+    global cost
 
     completion = openai.ChatCompletion.create(
         model=model,
         messages=message_history,
     )
-    bot_message = completion["choices"][0]["message"]["content"]
 
     # calculate cost for each request sent
     cost += completion.usage.total_tokens * (0.002 / 1_000)
+
+    # reply gotten from the bot, i.e assistant message
+    return completion["choices"][0]["message"]["content"]
+
+
+def generate_response(history: List[list], model: str = "gpt-3.5-turbo"):
+    global message_history, cost
+
+    bot_message = get_completion_from_message(model)
 
     message_history += [{"role": "assistant", "content": bot_message}]
 
@@ -90,8 +92,24 @@ def generate_response(history: List[list], model: str = "gpt-3.5-turbo"):
     return history
 
 
+def get_json_output():
+    global message_history
+
+    message_history += [
+        {
+            "role": "system",
+            "content": """Create a JSON summary of the just concluded order after the order has been completed. 
+                         The fields should contain 1) a generated id 2) swallows 3) proteins 4) drinks 5) delivery address (if any) 6) total price. 
+                         The function should always return the JSON summary of the order.""",
+        }
+    ]
+
+    return get_completion_from_message()
+
+
 def calc_cost():
     global cost
+
     return cost
 
 

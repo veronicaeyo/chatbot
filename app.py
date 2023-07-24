@@ -5,7 +5,7 @@ import time
 
 import gradio as gr
 
-from backend import add_text, generate_response, calc_cost
+from backend import add_text, generate_response, calc_cost, get_json_output
 
 
 def user(user_message, history):
@@ -18,8 +18,6 @@ def bot(history):
         history[-1][1] += character
         time.sleep(0.05)
         yield history
-
-
 
 
 with gr.Blocks() as demo:
@@ -50,6 +48,7 @@ with gr.Blocks() as demo:
     )
 
     response.then(lambda: gr.update(interactive=True), None, [msg], queue=False)
+    response.then(fn=get_json_output, queue=False)
 
 demo.queue()
 demo.launch()
